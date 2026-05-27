@@ -16,6 +16,7 @@ docs/
 .venv
 
 session_keys.db
+wallet.db
 
 # OS / editor artifacts
 .DS_Store
