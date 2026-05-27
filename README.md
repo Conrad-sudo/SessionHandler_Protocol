@@ -1,4 +1,4 @@
-# Session Key Infrastructure
+# Session Key Infrastructure 🔑⛓️ 
 
 > **Proof of Concept — not audited. Do not use with real funds.**
 
