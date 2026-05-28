@@ -22,7 +22,7 @@ contract SessionHandlerSepoliaTest is Test {
     address bundler = makeAddr("bundler");
     uint256 constant BUDGET = 5000e18;
 
-     modifier ethSessionAdded() {
+    modifier ethSessionAdded() {
         address sessionKey = user;
         address target = address(0); // Sentinel for native ETH-send session
         bytes4[] memory sel = new bytes4[](0); // No selectors for native ETH session
@@ -49,7 +49,7 @@ contract SessionHandlerSepoliaTest is Test {
         sel[1] = IERC20.transferFrom.selector;
         sel[2] = IERC20.approve.selector;
 
-        uint48 validFrom = uint48(block.timestamp );
+        uint48 validFrom = uint48(block.timestamp);
         uint48 validUntil = uint48(block.timestamp + 1 days);
         uint256 spendingLimit = BUDGET;
 
@@ -64,12 +64,9 @@ contract SessionHandlerSepoliaTest is Test {
         (sessionHandler, config, oracle) = deployer.run();
         (user, privateKey) = makeAddrAndKey("user");
         sendPackedUserOp = new SendPackedUserOp();
-         vm.deal(address(sessionHandler), 10 ether);
-        deal(config.link,address(sessionHandler), 10000e18);
-        
+        vm.deal(address(sessionHandler), 10 ether);
+        deal(config.link, address(sessionHandler), 10000e18);
     }
-
-
 
     /**
      * @notice Sending native ETH via a session key deducts the correct USD value from the session budget
@@ -79,30 +76,26 @@ contract SessionHandlerSepoliaTest is Test {
      *      budget and the recipient's post-transfer balance.
      */
     function testSendingEthWithSession() public ethSessionAdded {
-       
-       address dest= kani;
+        address dest = kani;
         uint256 value = 1 ether;
-        uint256 valueInUSD=oracle.getUSDValue(address(0), value);
-
+        uint256 valueInUSD = oracle.getUSDValue(address(0), value);
 
         bytes memory data = ""; // No data needed for native ETH transfer
         bytes memory callData = abi.encodeWithSelector(SessionHandler.execute.selector, dest, value, data);
         PackedUserOperation[] memory PackedUserOp = new PackedUserOperation[](1);
-        (PackedUserOperation memory userOp, ,) =sendPackedUserOp.generateSignedUserOp(address(sessionHandler), config, callData, user, privateKey);
-        
+        (PackedUserOperation memory userOp,,) =
+            sendPackedUserOp.generateSignedUserOp(address(sessionHandler), config, callData, user, privateKey);
+
         PackedUserOp[0] = userOp;
-        
-        
+
         vm.warp(block.timestamp + 10 minutes); // Ensure we're within the session's validity period
         vm.prank(bundler, bundler);
-        IEntryPoint(config.entryPoint).handleOps(PackedUserOp, payable(user)); 
-        
+        IEntryPoint(config.entryPoint).handleOps(PackedUserOp, payable(user));
+
         uint256 remainingBudget = sessionHandler.getRemainingBudget(user);
-        uint256 expectedRemainingBudget = BUDGET -valueInUSD;
+        uint256 expectedRemainingBudget = BUDGET - valueInUSD;
         assertEq(remainingBudget, expectedRemainingBudget);
         assertEq(kani.balance, value);
-      
-
     }
 
     /**
@@ -127,12 +120,7 @@ contract SessionHandlerSepoliaTest is Test {
         vm.warp(block.timestamp + 10 minutes);
         vm.prank(bundler, bundler);
         IEntryPoint(config.entryPoint).handleOps(PackedUserOp, payable(user));
-    
 
         assertEq(IERC20(config.link).balanceOf(user), amountToTransfer);
     }
-
-
-
-    
 }

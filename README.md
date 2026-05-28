@@ -367,7 +367,7 @@ The `PriceOracle` converts ETH and ERC20 token amounts into real-time USD values
 
 This design accounts for stablecoin depeg events (e.g., USDC at $0.87 during the March 2023 SVB crisis) by querying actual market prices rather than assuming a 1:1 peg.
 
-**Supported tokens (21+ on Anvil, 32+ on mainnet):** ETH (via `address(0)`), USDC, DAI, WETH, USDT, AAVE, LINK, 1INCH, APE, ARB, BNB, WBTC, COMP, CRV, ENS, MKR, SAND, SUSHI, wTAO, UNI, YFI, and more on mainnet (AVAX, BAT, IMX, KNC, RDNT, RPL, SKY, SNX, STG, SXT, TRUMP, ZEC).
+**Supported tokens (21 registered by Forge deploy script; 26 in mainnet `HelperConfig`):** ETH (via `address(0)`), USDC, DAI, WETH, USDT, AAVE, LINK, 1INCH, APE, ARB, BNB, WBTC, COMP, CRV, ENS, MKR, SAND, SUSHI, wTAO, UNI, YFI. The mainnet `HelperConfig` additionally provides WAVAX, BAT, IMX, KNC, and RDNT (5 extra feeds), giving 26 total. The Forge `DeploySessionHandler.s.sol` script registers only the first 21; the Python `deploy.py` path registers all 26 on mainnet.
 
 Token-to-feed mappings are stored in `mapping(address => address) private s_priceFeed`, and per-feed staleness thresholds in `mapping(address => uint256) private s_heartbeat`. Both are keyed by feed address and set at construction time via parallel `tokens[]`, `priceFeeds[]`, and `heartbeats[]` arrays. Token decimals are read dynamically via `IERC20Metadata.decimals()`. Entries with `address(0)` feeds are silently skipped, allowing safe deployment on chains with partial feed availability.
 
@@ -392,13 +392,13 @@ function getPrice(address token) external view returns (uint256 price, uint8 dec
 
 | Network | Chain ID | EntryPoint |
 |---|---|---|
-| Ethereum Mainnet | 1 | `ENTRYPOINT_V09` (canonical) |
-| Ethereum Sepolia | 11155111 | `ENTRYPOINT_V09` (canonical) |
+| Ethereum Mainnet | 1 | `ENTRYPOINT_V07` (canonical) |
+| Ethereum Sepolia | 11155111 | `ENTRYPOINT_V07` (canonical) |
 | Anvil (local) | 31337 | Freshly deployed, cached per session |
 
-For local Anvil runs, `HelperConfig` deploys a fresh `EntryPoint`, 23 ERC20Mock tokens (including USDT, WETH, WAVAX, BAT, IMX, KNC, and RDNT), and 24 MockV3Aggregator price feeds, then caches the result so repeated calls do not redeploy. Mock prices are set to approximate real-world values (e.g. ETH at $1000, USDC at $0.998). All mock feeds use a 1-hour heartbeat on Anvil.
+For local Anvil runs, `HelperConfig` deploys a fresh `EntryPoint`, 25 token mocks (24 ERC20Mock + 1 MockWeth, including USDT, WAVAX, BAT, IMX, KNC, and RDNT), and 25 MockV3Aggregator price feeds, then caches the result so repeated calls do not redeploy. Mock prices are set to approximate real-world values (e.g. ETH at $1000, USDC at $0.998). All mock feeds use a 1-hour heartbeat on Anvil.
 
-For Sepolia, `HelperConfig` returns live testnet token and Chainlink feed addresses. Only a subset of tokens have Sepolia deployments (WETH, LINK, USDC, DAI, WBTC, AAVE, UNI) — all others are set to `address(0)` and silently skipped by `PriceOracle`. Uniswap V2 is not officially deployed on Sepolia, so `uniswapRouter` is `address(0)`.
+For Sepolia, `HelperConfig` returns live testnet token and Chainlink feed addresses. Only a subset of tokens have Sepolia deployments (WETH, LINK, USDC, DAI, USDT, WBTC, AAVE, UNI) — all others are set to `address(0)` and silently skipped by `PriceOracle`. Note: USDT, AAVE, and UNI have Sepolia token addresses but their Chainlink price feeds are `address(0)` on Sepolia, so they are registered as tokens but skipped during oracle construction. Uniswap V2 is not officially deployed on Sepolia, so `uniswapRouter` is `address(0)`.
 
 `getMainnetConfig()` sets `account` to `ANVIL_BURNER_WALLET` (Anvil's default account 0: `0xf39F...2266`) because this config is primarily used for mainnet-fork testing against a local Anvil node, where that key is pre-funded. **Before deploying to live mainnet, replace `ANVIL_BURNER_WALLET` with a real funded EOA address** — the Anvil default key has no funds on mainnet and its private key is public.
 
@@ -413,7 +413,7 @@ The Foundry deployment script orchestrates the full contract deployment sequence
 1. Instantiates `HelperConfig` to resolve chain-specific addresses.
 2. Deploys `PriceOracle` with parallel token, feed address, and heartbeat arrays.
 3. Deploys `SessionHandler` with the `EntryPoint`, `PriceOracle`, and Uniswap V2 Router addresses.
-4. On Anvil only: mints 20,000 USDC/USDT and 2,000 of each other supported token into the `SessionHandler`, and sends 10 ETH.
+4. On Anvil only: mints 1,000 WETH, 10,000 USDC (6 decimals), 20,000 USDT (18 decimals), 10,000 DAI, and 2,000 of each other supported token into the `SessionHandler`, and sends 10 ETH via `vm.deal`.
 
 ```solidity
 function run() external returns (SessionHandler, HelperConfig.NetworkConfig memory, PriceOracle);
@@ -505,6 +505,30 @@ forge test -vvvv
 
 ```bash
 forge test --match-test testFunctionName -vvvv
+```
+
+**Unit tests:**
+
+```bash
+forge test --match-path test/unit/TestSessionHandler.t.sol
+```
+
+**Invariant tests:**
+
+```bash
+forge test --match-path test/invariant/InvariantSessionHandler.t.sol
+```
+
+**Fork test — Uniswap V2 integration (mainnet fork):**
+
+```bash
+forge test --match-path test/fork/UniswapV2Test.t.sol --fork-url $MAINNET_RPC_URL
+```
+
+**Fork test — Sepolia integration:**
+
+```bash
+forge test --match-path test/fork/SessionHandlerSepoliaTest.t.sol --fork-url $SEPOLIA_RPC_URL
 ```
 
 **Start a local Anvil node:**

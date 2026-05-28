@@ -109,7 +109,7 @@ contract SessionHandler is IAccount, Ownable, ReentrancyGuard, Pausable {
     ///      Written by _setPendingSession on successful validation; read and consumed in execute().
     ///      Both slots are automatically zeroed at transaction end — no manual cleanup required.
     address transient t_pendingSessionKey;
-    bytes4  transient t_pendingSelector;
+    bytes4 transient t_pendingSelector;
 
     /*//////////////////////////////////////////////////////////////
                                    EVENTS
@@ -315,15 +315,14 @@ contract SessionHandler is IAccount, Ownable, ReentrancyGuard, Pausable {
      * @param token  ERC20 token address to withdraw, or address(0) for native ETH.
      * @param amount Amount to withdraw in the token's base units (e.g. 1e6 for 1 USDC at 6 decimals).
      */
-    function withdraw(address token ,uint256 amount) external onlyOwner{
-        if(token!=address(0)) {
-            if(IERC20(token).balanceOf(address(this)) < amount) revert SessionHandler_NotEnoughBalance();
+    function withdraw(address token, uint256 amount) external onlyOwner {
+        if (token != address(0)) {
+            if (IERC20(token).balanceOf(address(this)) < amount) revert SessionHandler_NotEnoughBalance();
             SafeERC20.safeTransfer(IERC20(token), owner(), amount);
-        }
-        else{
-            if(address(this).balance < amount) revert SessionHandler_NotEnoughBalance();
+        } else {
+            if (address(this).balance < amount) revert SessionHandler_NotEnoughBalance();
             (bool success,) = payable(owner()).call{value: amount}("");
-            if(!success){
+            if (!success) {
                 revert SessionHandler_ExecutionFailed();
             }
         }
@@ -372,7 +371,6 @@ contract SessionHandler is IAccount, Ownable, ReentrancyGuard, Pausable {
         //format the userOpHash to the ERC191 signed data
         bytes32 digest = MessageHashUtils.toEthSignedMessageHash(userOpHash);
         address signer = ECDSA.recover(digest, userOp.signature);
-       
 
         //the owner
         if (signer == owner()) {
@@ -464,7 +462,8 @@ contract SessionHandler is IAccount, Ownable, ReentrancyGuard, Pausable {
      *      removeLiquidity variants where budget is credited rather than charged.
      */
     function _computeUSDValue(address dest, uint256 value, bytes memory data, bytes4 selector)
-        internal view
+        internal
+        view
         returns (uint256 debitValueInUSD, uint256 creditValueInUSD)
     {
         address token;

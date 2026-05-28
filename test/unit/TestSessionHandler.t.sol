@@ -123,7 +123,6 @@ contract TestSessionHandler is Test {
         _;
     }
 
-
     modifier ethSessionAdded() {
         address sessionKey = user;
         address target = address(0); // Sentinel for native ETH-send session
@@ -158,9 +157,9 @@ contract TestSessionHandler is Test {
         usdc = ERC20Mock(config.usdc);
         dai = ERC20Mock(config.dai);
         weth = MockWeth(payable(config.weth));
-         vm.deal(address(sessionHandler), INTITIAL_ACCOUNT_BALANCE);
-       // usdc.mint(address(sessionHandler), 10000e6);
-       // dai.mint(address(sessionHandler), 10000e18);
+        vm.deal(address(sessionHandler), INTITIAL_ACCOUNT_BALANCE);
+        // usdc.mint(address(sessionHandler), 10000e6);
+        // dai.mint(address(sessionHandler), 10000e18);
         //weth.mint(address(sessionHandler), 1000e18);
     }
 
@@ -344,8 +343,6 @@ contract TestSessionHandler is Test {
                                VALIDATION TESTS
     //////////////////////////////////////////////////////////////*/
 
-
-
     /// @notice validateUserOp must return SIG_VALIDATION_FAILED when the signer is neither the owner nor a registered session key
     function testValidateUserOpFailsWithUnknownSigner() public {
         (address random, uint256 randomKey) = makeAddrAndKey("random");
@@ -424,7 +421,6 @@ contract TestSessionHandler is Test {
         assertEq(aggregator, 0);
     }
 
-  
     /**
      * @notice Session-key-signed UserOps must fail validation when targeting a non-whitelisted contract
      * @dev Session is scoped to `usdc`. Attempting to call a different address must be rejected.
@@ -502,8 +498,6 @@ contract TestSessionHandler is Test {
         uint160 aggregator = uint160(validationData);
         assertEq(aggregator, 1);
     }
-
-  
 
     /*//////////////////////////////////////////////////////////////
                        RECOVER SIGNED USEROP TESTS
@@ -607,8 +601,6 @@ contract TestSessionHandler is Test {
                               SESSION TESTS
     //////////////////////////////////////////////////////////////*/
 
-
-
     /**
      * @notice address(0) is the ETH-send sentinel and must be registered with an empty selector array
      * @dev Passing address(0) as target alongside a non-empty selector array must revert with
@@ -636,31 +628,27 @@ contract TestSessionHandler is Test {
      *      budget and the recipient's post-transfer balance.
      */
     function testSpendingLimitUpdatesForSendingEthWithSession() public ethSessionAdded {
-       
-       address dest= kani;
+        address dest = kani;
         uint256 value = 1 ether;
-        uint256 valueInUSD=oracle.getUSDValue(address(0), value);
-
+        uint256 valueInUSD = oracle.getUSDValue(address(0), value);
 
         bytes memory data = ""; // No data needed for native ETH transfer
         bytes memory callData = abi.encodeWithSelector(SessionHandler.execute.selector, dest, value, data);
         PackedUserOperation[] memory PackedUserOp = new PackedUserOperation[](1);
-        (PackedUserOperation memory userOp,,) =sendPackedUserOp.generateSignedUserOp(address(sessionHandler), config, callData, user, privateKey);
-        
+        (PackedUserOperation memory userOp,,) =
+            sendPackedUserOp.generateSignedUserOp(address(sessionHandler), config, callData, user, privateKey);
+
         PackedUserOp[0] = userOp;
-        
-        
+
         vm.warp(block.timestamp + 1.1 hours);
         _refreshMockFeeds();
         vm.prank(bundler, bundler);
-        IEntryPoint(config.entryPoint).handleOps(PackedUserOp, payable(user)); 
-        
+        IEntryPoint(config.entryPoint).handleOps(PackedUserOp, payable(user));
+
         uint256 remainingBudget = sessionHandler.getRemainingBudget(user);
-        uint256 expectedRemainingBudget = BUDGET -valueInUSD;
+        uint256 expectedRemainingBudget = BUDGET - valueInUSD;
         assertEq(remainingBudget, expectedRemainingBudget);
         assertEq(kani.balance, value);
-      
-
     }
 
     /**
@@ -1063,8 +1051,6 @@ contract TestSessionHandler is Test {
     /*//////////////////////////////////////////////////////////////
                                   FUZZ TESTS
        //////////////////////////////////////////////////////////////*/
-
-   
 
     /**
      * @notice addSessionKey must revert with InvalidTimeRange for any input where validFrom >= validUntil.

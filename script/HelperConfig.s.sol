@@ -374,7 +374,7 @@ contract HelperConfig is Script {
      *      Ensure SEPOLIA_ACCOUNT is funded with Sepolia ETH before broadcasting.
      * @return config NetworkConfig for Ethereum Sepolia
      */
-    function getEthSepoliaConfig() internal pure returns (NetworkConfig memory) {
+    function getEthSepoliaConfig() internal  returns (NetworkConfig memory) {
         return NetworkConfig({
             entryPoint: ENTRYPOINT_V07,
             account: SEPOLIA_ACCOUNT,
@@ -468,10 +468,10 @@ contract HelperConfig is Script {
      *      Ensure SEPOLIA_ACCOUNT is funded before broadcasting on any live network.
      * @return config NetworkConfig for Ethereum mainnet and compatible chains
      */
-    function getMainnetConfig() internal pure returns (NetworkConfig memory) {
+    function getMainnetConfig() internal  returns (NetworkConfig memory) {
         return NetworkConfig({
             entryPoint: ENTRYPOINT_V07,
-            account: ANVIL_BURNER_WALLET,//swap for the deployer account on mainnet and ensure it's funded before broadcasting
+            account: ANVIL_BURNER_WALLET, //swap for the deployer account on mainnet and ensure it's funded before broadcasting
             uniswapRouter: 0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D,
             // Stablecoins
             usdc: 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48,

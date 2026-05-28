@@ -69,8 +69,9 @@ contract PriceOracle {
      *                    The value at index i is ignored when priceFeeds[i] is address(0).
      */
     constructor(address[] memory tokens, address[] memory priceFeeds, uint256[] memory heartbeats) {
-        if (tokens.length != priceFeeds.length || priceFeeds.length != heartbeats.length)
+        if (tokens.length != priceFeeds.length || priceFeeds.length != heartbeats.length) {
             revert PriceOracle_ArrayLengthMismatch();
+        }
         for (uint256 i = 0; i < tokens.length; i++) {
             if (priceFeeds[i] != address(0)) {
                 s_priceFeed[tokens[i]] = priceFeeds[i];
