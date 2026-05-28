@@ -12,6 +12,8 @@ def load_network_config(chat_id: int) -> tuple[Web3, int, str]:
     @return            A tuple of (Web3 instance, chain_id, chain_name).
     """
     chain_name = get_user_network(chat_id)
+    if chain_name is None:
+        raise ValueError(f"No network configured for user {chat_id}. Deploy first.")
     rpc_url = get_rpc_url(chain_name)
     chain_id = get_chain_id_from_name(chain_name)
 

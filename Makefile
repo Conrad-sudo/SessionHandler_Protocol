@@ -25,7 +25,7 @@ help:
 	@echo ""
 	@echo "Python"
 	@echo "  make db                 - Initialise the SQLite database and run migrations"
-	@echo "  make deploy             - Deploy contracts via web3.py and seed the database"
+	@echo "  make deploy-py          - Deploy contracts via web3.py and seed the database"
 	@echo "  make agent              - Start the agent in interactive CLI mode"
 	@echo "  make bot                - Start the Telegram bot"
 	@echo ""
@@ -84,7 +84,7 @@ fund:
 db:
 	.venv/bin/python3 interface/db.py
 
-deploy:
+deploy-py:
 	.venv/bin/python3 interface/deploy.py
 
 

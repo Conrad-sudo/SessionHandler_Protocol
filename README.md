@@ -965,7 +965,7 @@ Deployment and session registration scripts. Run once per fresh environment or n
 
 **`add_session(chat_id, targets, functions, session_ends, limits)`** registers one session key per target on the SessionHandler. All four list parameters must have the same length — one entry per target. Automatically calls `approve()` for each ERC20 target on mainnet-fork networks.
 
-**`deploy(chat_id, network)`** is the top-level dispatcher called by `make deploy`. It routes to the correct deployment function based on the network string. To target a different network, change the `network` argument in the `__main__` block at the bottom of `deploy.py` before running `make deploy`. Supported values: `"anvil"`, `"mainnet-fork"`, `"sepolia-fork"`, `"sepolia"`.
+**`deploy(chat_id, network)`** is the top-level dispatcher called by `make deploy-py`. It routes to the correct deployment function based on the network string. To target a different network, change the `network` argument in the `__main__` block at the bottom of `deploy.py` before running `make deploy-py`. Supported values: `"anvil"`, `"mainnet-fork"`, `"sepolia-fork"`, `"sepolia"`.
 
 **`add_default_session(chat_id)`** registers a default set of session keys. The set varies by network:
 
@@ -1220,7 +1220,7 @@ make anvil
 > Before running this step, open [interface/deploy.py](interface/deploy.py) and confirm the network name in the `__main__` block at the bottom of the file matches your target. The default is `"sepolia"`. Change it to `"anvil"`, `"mainnet-fork"`, or `"sepolia-fork"` as needed.
 
 ```bash
-make deploy
+make deploy-py
 ```
 
 This deploys the full contract stack on the configured network and registers default session keys for the configured `chat_id`. On Anvil it deploys a full mock stack (EntryPoint, ERC20Mocks, MockV3Aggregators, PriceOracle, SessionHandler). Must be re-run whenever Anvil is restarted (chain state is wiped on restart).
@@ -1290,7 +1290,7 @@ The default Sepolia session registers ETH, WETH, and LINK keys (Uniswap V2 opera
 | `make sepolia-fork` | Start a Sepolia fork at the latest block |
 | `make vault` | Configure Vault and refresh `.env` credentials |
 | `make db` | Initialise SQLite database and run migrations |
-| `make deploy` | Deploy contracts and register session keys (set network in `deploy.py` `__main__` first) |
+| `make deploy-py` | Deploy contracts and register session keys (set network in `deploy.py` `__main__` first) |
 | `make agent` | Start the agent in interactive CLI mode |
 | `make bot` | Start the Telegram bot |
 

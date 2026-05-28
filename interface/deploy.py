@@ -203,7 +203,7 @@ def prefund(deployer, session_handler, w3, network, chain_id):
     tx = {
         "from": deployer.address,
         "to": session_handler.address,
-        "value": w3.to_wei(1, "ether"),
+        "value": w3.to_wei(10, "ether"),
         "nonce": nonce,
         "chainId": chain_id,
         "gas": 50_000,
@@ -214,7 +214,7 @@ def prefund(deployer, session_handler, w3, network, chain_id):
             w3.eth.account.sign_transaction(tx, deployer.key).raw_transaction
         )
     )
-    print(f"SessionHandler funded with 1 ETH for {network} deployments.")
+    print(f"SessionHandler funded with 10 ETH for {network} deployments.")
 
     if "fork" in network:
     # Fund the Bundler with 10 ETH to cover the deployment gas costs of users who connect to this SessionHandler on the mainnet fork.
@@ -711,7 +711,7 @@ def add_default_session(chat_id: int):
     if chain_name == "mainnet-fork":
         add_session(
             chat_id=chat_id,
-            targets=["eth", "weth", "link", "uniswapv2_router"],
+            targets=["eth", "weth", "usdc", "uniswapv2_router"],
             functions=[
                 [],  # empty selector array for native ETH sessions (address(0) target) since there are no function calls, just value transfers
                 weth_functions,
@@ -768,5 +768,5 @@ def deploy(chat_id: int, network: str):
 
 if __name__ == "__main__":
     chat_id = int(os.getenv("TELEGRAM_CHAT_ID"))
-    deploy(chat_id=chat_id, network="sepolia")
+    deploy(chat_id=chat_id, network="mainnet-fork")
     add_default_session(chat_id=chat_id)
