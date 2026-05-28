@@ -225,7 +225,7 @@ contract HelperConfig is Script {
     uint256 public constant LOCAL_CHAIN_ID = 31337;
 
     /// @notice Deployer account used on live networks — must be funded before broadcasting
-    address public SEPOLIA_ACCOUNT = vm.envAddress("SEPOLIA_ACCOUNT");
+    address public SEPOLIA_ACCOUNT = vm.envOr("SEPOLIA_ACCOUNT", address(0));
 
     /// @notice Default pre-funded account on a local Anvil node (account index 0)
     address public constant ANVIL_BURNER_WALLET = 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266;
