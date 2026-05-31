@@ -31,7 +31,7 @@ The system is composed of five layers: Solidity smart contracts, a Python blockc
 - [Docker Desktop](https://www.docker.com/products/docker-desktop/) — **required** to run HashiCorp Vault locally
 - Python 3.12+
 - A Telegram bot token (from [@BotFather](https://t.me/BotFather))
-- An Anthropic API key
+- An API key for your chosen LLM provider (default: Anthropic — see [supported providers](https://python.langchain.com/docs/integrations/chat/))
 - An Alchemy API key (required for live Sepolia deployment and mainnet fork)
 
 ---
@@ -1398,7 +1398,7 @@ session-key-infra/
 | `hvac` | HashiCorp Vault Python client (Transit encrypt/decrypt) |
 | `requests` | HTTP client for bundler JSON-RPC calls (`live_network.py`) |
 | `langchain` | Tool definitions and agent framework |
-| `langchain-anthropic` | Claude LLM integration |
+| `langchain-anthropic` | Default Claude LLM integration — swappable for any other [LangChain-supported provider](https://python.langchain.com/docs/integrations/chat/) (OpenAI, Gemini, Ollama, etc.) |
 | `langgraph` | Stateful agent execution with `InMemorySaver` checkpointer |
 | `python-telegram-bot[job-queue]` | Telegram Bot API client (v20 async) with APScheduler for timed jobs |
 | `python-dotenv` | `.env` file loading |
