@@ -1257,6 +1257,76 @@ Starts the agent in a read-eval-print loop without launching the Telegram bot. U
 
 ---
 
+## Local Setup (Mainnet Fork)
+
+Run the full stack against a local mainnet fork. Requires `MAINNET_RPC_URL` to be set in `.env`.
+
+**Step 1 — Start a mainnet fork:**
+
+```bash
+make mainnet-fork
+```
+
+**Step 2 — Initialise the database (one-time):**
+
+```bash
+make db
+```
+
+**Step 3 — Deploy the contracts and register session keys:**
+
+> Open [interface/deploy.py](interface/deploy.py) and set the network in the `__main__` block to `"mainnet-fork"`, then run:
+
+```bash
+make deploy-py
+```
+
+**Step 4 — Start the bot or agent:**
+
+```bash
+make bot      # Telegram bot
+make agent    # Interactive CLI
+```
+
+> Re-run `make vault` and `make deploy-py` after any Vault container restart or Anvil restart — fork state is wiped on restart.
+
+---
+
+## Local Setup (Sepolia Fork)
+
+Run the full stack against a local Sepolia fork. Requires `SEPOLIA_RPC_URL` to be set in `.env`.
+
+**Step 1 — Start a Sepolia fork:**
+
+```bash
+make sepolia-fork
+```
+
+**Step 2 — Initialise the database (one-time):**
+
+```bash
+make db
+```
+
+**Step 3 — Deploy the contracts and register session keys:**
+
+> Open [interface/deploy.py](interface/deploy.py) and set the network in the `__main__` block to `"sepolia-fork"`, then run:
+
+```bash
+make deploy-py
+```
+
+**Step 4 — Start the bot or agent:**
+
+```bash
+make bot      # Telegram bot
+make agent    # Interactive CLI
+```
+
+> Uniswap V2 tools are unavailable on the Sepolia fork — the router is not deployed on Sepolia. Only ETH, WETH, and LINK sessions are registered by default.
+
+---
+
 ## Sepolia Deployment
 
 `deploy.py` supports deploying to live Sepolia via `deploy_session_handler(chat_id, "sepolia")`. The `__main__` block runs this automatically when called from `make deploy` after updating `TELEGRAM_CHAT_ID` and `SEPOLIA_PRIVATE_KEY` in `.env`.
